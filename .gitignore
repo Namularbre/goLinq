@@ -1,0 +1,6 @@
+# Jetbrains
+.idea
+linq.iml
+
+# Utils
+gen_tests.js

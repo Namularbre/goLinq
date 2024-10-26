@@ -5,7 +5,7 @@ A cheap linq for Golang 1.23.
 ## Install
 
 ````
-go get https://github.com/Namularbre/goLinq/blob/master/go.mod
+go get github.com/Namularbre/goLinq/blob/master/go.mod
 ````
 
 ## Author

@@ -68,6 +68,50 @@ func TestSelect(t *testing.T) {
 	}
 }
 
+func TestLimit(t *testing.T) {
+	slice := []TestSource{
+		{
+			Username: "Dupont",
+			Age:      60,
+		},
+		{
+			Username: "Dupond",
+			Age:      44,
+		},
+		{
+			Username: "Alex",
+			Age:      22,
+		},
+		{
+			Username: "Steve",
+			Age:      28,
+		},
+		{
+			Username: "Alice",
+			Age:      76,
+		},
+		{
+			Username: "Bob",
+			Age:      36,
+		},
+	}
+	assertOutput := []TestSource{
+		{
+			Username: "Dupont",
+			Age:      60,
+		},
+		{
+			Username: "Dupond",
+			Age:      44,
+		},
+	}
+	output := Limit(slice, 2)
+
+	if len(output) != 2 && !slices.Equal(output, assertOutput) {
+		t.Fatalf("Error, Res should be %v but got %v", assertOutput, output)
+	}
+}
+
 func BenchmarkSelect(b *testing.B) {
 	data := loadTestsSource()
 

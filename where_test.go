@@ -22,7 +22,7 @@ func TestWhereWithStrings(t *testing.T) {
 	assertRes := []TestSource{
 		{
 			Username: "Alex",
-			Age:      28,
+			Age:      22,
 		},
 	}
 	res := Where(slice, func(source TestSource) bool {

@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// TestSource The goal of this type is to test custom structs in linq
+// TestSource The goal of this type is to test with custom structs in linq
 type TestSource struct {
 	Username string `json:"username"`
 	Age      int    `json:"age"`

@@ -14,62 +14,8 @@ type TestSource struct {
 	Age      int    `json:"age"`
 }
 
-func loadTestsSource() []TestSource {
-	data, err := os.ReadFile("data.json")
-	if err != nil {
-		panic(err)
-	}
-	var tests []TestSource
-
-	err = json.Unmarshal(data, &tests)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("test set len %d \n", len(tests))
-
-	return tests
-}
-
-func TestWhere(t *testing.T) {
-	slice := []int{2, 4, 6, 7, 8}
-	assertRes := []int{2, 4, 6, 8}
-	res := Where(slice, func(x int) bool {
-		return x%2 == 0
-	})
-
-	if !slices.Equal(assertRes, res) || len(assertRes) != len(res) {
-		t.Fatalf("Error. Res should be %v but got %v", assertRes, res)
-	}
-}
-
-func TestSelect(t *testing.T) {
-	slice := []TestSource{
-		{
-			Username: "Alex",
-			Age:      22,
-		},
-		{
-			Username: "Steve",
-			Age:      28,
-		},
-	}
-	assertRes := []string{
-		"Alex",
-		"Steve",
-	}
-
-	res := Select[TestSource, string](slice, func(source TestSource) string {
-		return source.Username
-	})
-
-	if !slices.Equal(assertRes, res) {
-		t.Fatalf("Error, Res should be %v but got %v", assertRes, res)
-	}
-}
-
-func TestLimit(t *testing.T) {
-	slice := []TestSource{
+func PrepareTestSource() []TestSource {
+	return []TestSource{
 		{
 			Username: "Dupont",
 			Age:      60,
@@ -95,7 +41,88 @@ func TestLimit(t *testing.T) {
 			Age:      36,
 		},
 	}
-	assertOutput := []TestSource{
+}
+
+func loadTestsSource() []TestSource {
+	data, err := os.ReadFile("data.json")
+	if err != nil {
+		panic(err)
+	}
+	var tests []TestSource
+
+	err = json.Unmarshal(data, &tests)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("test set len %d \n", len(tests))
+
+	return tests
+}
+
+func TestWhereWithInt(t *testing.T) {
+	slice := []int{2, 4, 6, 7, 8}
+	assertRes := []int{2, 4, 6, 8}
+	res := Where(slice, func(x int) bool {
+		return x%2 == 0
+	})
+
+	if !slices.Equal(assertRes, res) || len(assertRes) != len(res) {
+		t.Fatalf("Error. Res should be %v but got %v", assertRes, res)
+	}
+}
+
+func TestWhereWithStrings(t *testing.T) {
+	slice := PrepareTestSource()
+	assertRes := []TestSource{
+		{
+			Username: "Alex",
+			Age:      28,
+		},
+	}
+	res := Where(slice, func(source TestSource) bool {
+		return source.Username == "Alex"
+	})
+	if len(res) != len(assertRes) && !slices.Equal(res, assertRes) {
+		t.Fatalf("Error. Res should be %v but got %v", assertRes, res)
+	}
+}
+
+func TestWhereWhenNoResult(t *testing.T) {
+	slice := PrepareTestSource()
+	var assertRes []TestSource
+	res := Where(slice, func(source TestSource) bool {
+		return source.Age == -2000
+	})
+
+	if len(res) != 0 && !slices.Equal(assertRes, res) {
+		t.Fatalf("Error. Res should be %v but got %v", assertRes, res)
+	}
+}
+
+func TestSelect(t *testing.T) {
+	slice := PrepareTestSource()
+	assertRes := []string{
+		"Dupont",
+		"Dupond",
+		"Alex",
+		"Steve",
+		"Alice",
+		"Bob",
+	}
+
+	res := Select[TestSource, string](slice, func(source TestSource) string {
+		return source.Username
+	})
+
+	if !slices.Equal(assertRes, res) {
+		t.Fatalf("Error, Res should be %v but got %v", assertRes, res)
+	}
+}
+
+func TestLimit(t *testing.T) {
+	slice := PrepareTestSource()
+	assertRes := []TestSource{
 		{
 			Username: "Dupont",
 			Age:      60,
@@ -105,10 +132,20 @@ func TestLimit(t *testing.T) {
 			Age:      44,
 		},
 	}
-	output := Limit(slice, 2)
+	res := Limit(slice, 2)
 
-	if len(output) != 2 && !slices.Equal(output, assertOutput) {
-		t.Fatalf("Error, Res should be %v but got %v", assertOutput, output)
+	if len(res) != 2 && !slices.Equal(res, assertRes) {
+		t.Fatalf("Error, Res should be %v but got %v", assertRes, res)
+	}
+}
+
+func TestWithLimitBiggerThan(t *testing.T) {
+	slice := PrepareTestSource()
+	assertRes := slice
+	res := Limit(slice, 3_000_000)
+
+	if len(res) != len(assertRes) && slices.Equal(assertRes, res) {
+		t.Fatalf("Error, Res should be %v but got %v", assertRes, res)
 	}
 }
 

@@ -1,5 +1,6 @@
 package linq
 
+// Where is used to make a projection of a new slice where all elements match the filter
 func Where[T any](input []T, filter func(T) bool) []T {
 	var output []T
 

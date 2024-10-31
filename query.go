@@ -1,6 +1,8 @@
 package linq
 
-import "errors"
+import (
+	"errors"
+)
 
 // Query is a struct the represent a query
 type Query[TSource any, TResult any] struct {
@@ -13,6 +15,9 @@ type Query[TSource any, TResult any] struct {
 func NewQuery[TSource any, TResult any](source []TSource) *Query[TSource, TResult] {
 	return &Query[TSource, TResult]{
 		source: source,
+		selector: func(source TSource) TResult {
+			return *new(TResult)
+		},
 	}
 }
 
@@ -58,16 +63,36 @@ func applyFilters[T any](source []T, filters []func(T) bool) []T {
 	return filtered
 }
 
+// toTResultSlice converts a TSource into a TResult
+func toTResultSlice[TSource any, TResult any](source []TSource) []TResult {
+	result := make([]TResult, len(source))
+	for i, item := range source {
+		result[i] = any(item).(TResult)
+	}
+	return result
+}
+
 // ToSlice run the query and return all the result in the form of a slice
 func (q *Query[TSource, TResult]) ToSlice() []TResult {
-	q.source = applyFilters(q.source, q.filters)
+	if q.filters != nil {
+		q.source = applyFilters(q.source, q.filters)
+	}
+
+	// Si selector est nil, on retourne source directement (en supposant TSource == TResult)
+	if q.selector == nil {
+		return toTResultSlice[TSource, TResult](q.source)
+	}
+
+	// Si selector est défini, on l'applique
 	return Select(q.source, q.selector)
 }
 
 // First run the query and return the first element, or an error if there is nothing
 func (q *Query[TSource, TResult]) First() (*TResult, error) {
-	q.source = applyFilters(q.source, q.filters)
-	res := Select(q.source, q.selector)
+	if q.filters != nil {
+		q.source = applyFilters(q.source, q.filters)
+	}
+	res := q.ToSlice()
 	if len(res) > 0 {
 		return &res[0], nil
 	}
@@ -76,18 +101,22 @@ func (q *Query[TSource, TResult]) First() (*TResult, error) {
 
 // FirstOrDefault run the query and return def if there is no result
 func (q *Query[TSource, TResult]) FirstOrDefault(def *TResult) *TResult {
-	q.source = applyFilters(q.source, q.filters)
-	res := Select(q.source, q.selector)
+	if q.filters != nil {
+		q.source = applyFilters(q.source, q.filters)
+	}
+	res := q.ToSlice()
 	if len(res) > 0 {
 		return &res[0]
 	}
 	return def
 }
 
-// FirstOrNil is like FirstOrDefault, but return nil if there is no result
+// FirstOrNil is like FirstOrDefault, but returns nil if there is no result
 func (q *Query[TSource, TResult]) FirstOrNil() *TResult {
-	q.source = applyFilters(q.source, q.filters)
-	res := Select(q.source, q.selector)
+	if q.filters != nil {
+		q.source = applyFilters(q.source, q.filters)
+	}
+	res := q.ToSlice()
 	if len(res) > 0 {
 		return &res[0]
 	}

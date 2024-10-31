@@ -33,18 +33,6 @@ func (q *Query[TSource, TResult]) Select(selector func(TSource) TResult) *Query[
 	return q
 }
 
-// Skip skips n elements in the source
-func (q *Query[TSource, TResult]) Skip(skip uint) *Query[TSource, TResult] {
-	q.source = q.source[skip:]
-	return q
-}
-
-// Take keep only n element from the source
-func (q *Query[TSource, TResult]) Take(take uint) *Query[TSource, TResult] {
-	q.source = q.source[0:take]
-	return q
-}
-
 // applyFilters is a tool function the applies the filters of a query
 func applyFilters[T any](source []T, filters []func(T) bool) []T {
 	var filtered []T

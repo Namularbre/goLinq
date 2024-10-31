@@ -35,12 +35,12 @@ func TestWhereWithStrings(t *testing.T) {
 
 func TestWhereWhenNoResult(t *testing.T) {
 	slice := PrepareTestSource()
-	var assertRes []TestSource
+	assertRes := make([]TestSource, 0)
 	res := Where(slice, func(source TestSource) bool {
 		return source.Age == -2000
 	})
 
-	if len(res) != 0 || !slices.Equal(assertRes, res) {
-		t.Fatalf("Error. Res should be %v but got %v", assertRes, res)
+	if !slices.Equal(assertRes, res) {
+		t.Fatalf("Error. Res should be empty")
 	}
 }

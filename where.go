@@ -5,15 +5,7 @@ func Where[T any](input []T, predicate func(T) bool) []T {
 	var output []T
 
 	for _, inputElem := range input {
-		ok := make(chan bool)
-
-		go func() {
-			defer close(ok)
-
-			ok <- predicate(inputElem)
-		}()
-
-		if <-ok {
+		if predicate(inputElem) {
 			output = append(output, inputElem)
 		}
 	}

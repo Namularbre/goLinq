@@ -11,7 +11,7 @@ It's a very practical feature I want to bring in my go project, so I want to rei
 <li>Limit</li>
 <li>Skip</li>
 
-All the methods works with slices, but I will work on a struct the works like a query, to make go linq easier to write and read.
+All the methods works with slices, but I will work on a struct that works like a query, to make go linq easier to write and read.
 
 ## Install
 
